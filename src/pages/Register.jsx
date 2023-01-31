@@ -1,7 +1,7 @@
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { registerAuth } from "../config/firebase";
- 
+
 import { useRedirectActiveUser } from "../hooks/useRedirectActiveUser";
 import { Link } from "react-router-dom";
 
