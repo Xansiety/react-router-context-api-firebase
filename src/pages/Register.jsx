@@ -1,77 +1,138 @@
-import { useState } from "react";
+import { Formik } from "formik";
+import * as Yup from "yup";
 import { registerAuth } from "../config/firebase";
-import { useForm } from "../hooks/useForm";
+ 
 import { useRedirectActiveUser } from "../hooks/useRedirectActiveUser";
+import { Link } from "react-router-dom";
+
+import {
+  Avatar,
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { LoadingButton } from "@mui/lab";
 import { useUserContext } from "../hooks/useUserContext";
-
-const loginForm = {
-  loginEmail: "",
-  loginPassword: "",
-};
-
-const formValidations = {
-  loginEmail: [(value) => value.includes("@"), "El correo debe de tener una @"],
-  loginPassword: [
-    (value) => value.length >= 6,
-    "El password debe de tener más de 6 letras",
-  ],
-};
 
 const Register = () => {
   const { user } = useUserContext();
+
+  // alternativa con hook
   useRedirectActiveUser(user, "/dashboard");
 
-  const [formSubmitted, setFormSubmitted] = useState(false);
-
-  const {
-    loginEmail,
-    loginPassword,
-    onInputChange: onLoginInputChange,
-    isFormValid,
-    loginEmailValid,
-    loginPasswordValid,
-  } = useForm(loginForm, formValidations);
-
-  const onLoginSubmit = async (event) => {
-    event.preventDefault();
-    setFormSubmitted(true);
-    if (!isFormValid) return;
+  const onSubmit = async (
+    { email, password },
+    { setSubmitting, setErrors, resetForm }
+  ) => {
     try {
-      const credentials = await registerAuth(loginEmail, loginPassword);
-      console.log(credentials);
+      await registerAuth(email, password);
+      console.log("user registered");
+      resetForm();
     } catch (error) {
-      console.error(error);
+      console.log(error.code);
+      console.log(error.message);
+      if (error.code === "auth/email-already-in-use") {
+        setErrors({ email: "Email already in use" });
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const validationSchema = Yup.object().shape({
+    email: Yup.string().email("Email no válido").required("Email obligatorio"),
+    password: Yup.string()
+      .trim()
+      .min(6, "Mínimo 6 carácteres")
+      .required("Password obligatorio"),
+  });
+
   return (
     <>
-      <h3>Registrarme</h3>
-      <form onSubmit={onLoginSubmit}>
-        <input
-          type="text"
-          placeholder="Ingrese Email"
-          autoComplete="off"
-          name="loginEmail"
-          value={loginEmail}
-          onChange={onLoginInputChange}
-        />
-        {!!loginEmailValid && formSubmitted && loginEmailValid}
+      <Box
+        sx={{
+          marginTop: 8,
+          maxWidth: 400,
+          mx: "auto",
+          textAlign: "center",
+        }}
+      >
+        <Avatar sx={{ mx: "auto", bgcolor: "secondary.main" }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Registro
+        </Typography>
 
-        <input
-          type="password"
-          placeholder="Contraseña"
-          autoComplete="off"
-          name="loginPassword"
-          value={loginPassword}
-          onChange={onLoginInputChange}
-        />
-
-        {!!loginPasswordValid && formSubmitted && loginPasswordValid}
-        <div className="d-grid gap-2">
-          <input type="submit" className="btnSubmit" value="Registrarme" />
-        </div>
-      </form>
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          onSubmit={onSubmit}
+          validationSchema={validationSchema}
+        >
+          {({
+            handleChange,
+            handleSubmit,
+            values,
+            isSubmitting,
+            errors,
+            touched,
+            handleBlur,
+          }) => (
+            <Box onSubmit={handleSubmit} component="form" sx={{ mt: 1 }}>
+              <TextField
+                sx={{ mb: 3 }}
+                fullWidth
+                label="Email Address"
+                id="email"
+                type="text"
+                placeholder="Ingrese email"
+                value={values.email}
+                onChange={handleChange}
+                name="email"
+                onBlur={handleBlur}
+                error={errors.email && touched.email}
+                helperText={errors.email && touched.email && errors.email}
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                id="password"
+                type="password"
+                placeholder="Ingrese contraseña"
+                value={values.password}
+                onChange={handleChange}
+                name="password"
+                onBlur={handleBlur}
+                error={errors.password && touched.password}
+                helperText={
+                  errors.password && touched.password && errors.password
+                }
+              />
+              <LoadingButton
+                variant="contained"
+                color="secondary"
+                sx={{ mt: 3, mb: 2 }}
+                fullWidth
+                type="submit"
+                disabled={isSubmitting}
+                loading={isSubmitting}
+              >
+                Register
+              </LoadingButton>
+              <Grid container>
+                <Grid item xs>
+                  <Button component={Link} to="/" color="secondary">
+                    ¿Ya tienes cuenta? Accede aquí
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+        </Formik>
+      </Box>
     </>
   );
 };

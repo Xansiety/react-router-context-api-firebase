@@ -1,11 +1,12 @@
-import { Outlet } from "react-router"; 
+import { Outlet } from "react-router";
+import { Container } from "@mui/material";
 
 const LayoutRoot = () => {
   return (
     <>
-      <div className="container">
+      <Container maxWidth="md">
         <Outlet />
-      </div>
+      </Container>
     </>
   );
 };

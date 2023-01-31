@@ -3,6 +3,17 @@ import * as Yup from "yup";
 import { loginAuth } from "../config/firebase";
 import { useRedirectActiveUser } from "../hooks/useRedirectActiveUser";
 import { useUserContext } from "../hooks/useUserContext";
+import {
+  Avatar,
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { LoadingButton } from "@mui/lab";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const { user } = useUserContext();
@@ -43,49 +54,86 @@ const Login = () => {
 
   return (
     <>
-      <h3>Ingreso</h3>
-
-      <Formik
-        initialValues={{ email: "", password: "" }}
-        onSubmit={handleSubmitForm}
-        validationSchema={validationSchema}
+      <Box
+        sx={{
+          marginTop: 8,
+          maxWidth: 400,
+          mx: "auto",
+          textAlign: "center",
+        }}
       >
-        {({
-          values,
-          handleSubmit,
-          handleChange,
-          errors,
-          touched,
-          handleBlur,
-          isSubmitting,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="email"
-              value={values.email}
-              onChange={handleChange}
-              name="email"
-              onBlur={handleBlur}
-            />
-            {errors.email && touched.email && errors.email}
-            <input
-              type="password"
-              placeholder="password"
-              value={values.password}
-              onChange={handleChange}
-              name="password"
-              onBlur={handleBlur}
-            />
-            {errors.password && touched.password && errors.password}
-            <div className="d-grid gap-2">
-              <button type="submit" disabled={isSubmitting}>
+        <Avatar sx={{ mx: "auto", bgcolor: "secondary.main" }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          onSubmit={handleSubmitForm}
+          validationSchema={validationSchema}
+        >
+          {({
+            handleChange,
+            handleSubmit,
+            values,
+            isSubmitting,
+            errors,
+            touched,
+            handleBlur,
+          }) => (
+            <Box onSubmit={handleSubmit} component="form" sx={{ mt: 1 }}>
+              <TextField
+                sx={{ mb: 3 }}
+                fullWidth
+                label="Email Address"
+                id="email"
+                type="text"
+                placeholder="Ingrese email"
+                value={values.email}
+                onChange={handleChange}
+                name="email"
+                onBlur={handleBlur}
+                error={errors.email && touched.email}
+                helperText={errors.email && touched.email && errors.email}
+              />
+              <TextField
+                fullWidth
+                label="Password"
+                id="password"
+                type="password"
+                placeholder="Ingrese contraseña"
+                value={values.password}
+                onChange={handleChange}
+                name="password"
+                onBlur={handleBlur}
+                error={errors.password && touched.password}
+                helperText={
+                  errors.password && touched.password && errors.password
+                }
+              />
+              <LoadingButton
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                fullWidth
+                type="submit"
+                disabled={isSubmitting}
+                loading={isSubmitting}
+              >
                 Login
-              </button>
-            </div>
-          </form>
-        )}
-      </Formik>
+              </LoadingButton>
+              <Grid container>
+                <Grid item xs>
+                  <Button component={Link} to="/register">
+                    ¿No tienes cuenta? Registrate
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+        </Formik>
+      </Box>
     </>
   );
 };
