@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { loginAuth } from "../config/firebase";
 import { useForm } from "../hooks/useForm";
+import { useRedirectActiveUser } from "../hooks/useRedirectActiveUser";
+import { useUserContext } from "../hooks/useUserContext";
 
 const loginForm = {
   loginEmail: "",
@@ -16,6 +18,9 @@ const formValidations = {
 };
 
 const Login = () => {
+  const { user } = useUserContext();
+  useRedirectActiveUser(user, "/dashboard");
+
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   const {

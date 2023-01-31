@@ -4,6 +4,7 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 
 // Your web app's Firebase configuration
@@ -28,3 +29,5 @@ export const loginAuth = (email, password) => {
 export const registerAuth = (email, password) => {
   return createUserWithEmailAndPassword(auth, email, password);
 };
+
+export const logOutAuth = () => signOut(auth);
