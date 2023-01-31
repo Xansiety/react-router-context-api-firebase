@@ -1,7 +1,6 @@
 import { Formik } from "formik";
-import { useState } from "react";
+import * as Yup from "yup";
 import { loginAuth } from "../config/firebase";
-import { useForm } from "../hooks/useForm";
 import { useRedirectActiveUser } from "../hooks/useRedirectActiveUser";
 import { useUserContext } from "../hooks/useUserContext";
 
@@ -19,6 +18,16 @@ const Login = () => {
     }
   };
 
+  const validationSchema = Yup.object().shape({
+    email: Yup.string()
+      .email("El email no es valido")
+      .required("el email es requerido"),
+    password: Yup.string()
+      .trim()
+      .min(6, "Debe contar con mínimo 6 caracteres")
+      .required("la contraseña es requerida"),
+  });
+
   return (
     <>
       <h3>Ingreso</h3>
@@ -26,8 +35,16 @@ const Login = () => {
       <Formik
         initialValues={{ email: "", password: "" }}
         onSubmit={handleSubmitForm}
+        validationSchema={validationSchema}
       >
-        {({ values, handleSubmit, handleChange }) => (
+        {({
+          values,
+          handleSubmit,
+          handleChange,
+          errors,
+          touched,
+          handleBlur,
+        }) => (
           <form onSubmit={handleSubmit}>
             <input
               type="text"
@@ -35,14 +52,18 @@ const Login = () => {
               value={values.email}
               onChange={handleChange}
               name="email"
+              onBlur={handleBlur}
             />
+            {errors.email && touched.email && errors.email}
             <input
               type="password"
               placeholder="password"
               value={values.password}
               onChange={handleChange}
               name="password"
+              onBlur={handleBlur}
             />
+            {errors.password && touched.password && errors.password}
             <div className="d-grid gap-2">
               <input type="submit" className="btnSubmit" value="Login" />
             </div>
