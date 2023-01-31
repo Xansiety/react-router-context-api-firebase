@@ -8,13 +8,26 @@ const Login = () => {
   const { user } = useUserContext();
   useRedirectActiveUser(user, "/dashboard");
 
-  const handleSubmitForm = async ({ email, password }) => {
+  const handleSubmitForm = async (
+    { email, password },
+    { setSubmitting, setErrors, resetForm }
+  ) => {
     console.log(email, password);
     try {
       const credentials = await loginAuth(email, password);
       console.log(credentials);
+      resetForm();
     } catch (error) {
-      console.error(error);
+      console.error(error.code);
+      console.log(error.message);
+      if (error.code === "auth/user-not-found") {
+        setErrors({ email: "Usuario no registrado" });
+      }
+      if (error.code === "auth/wrong-password") {
+        setErrors({ password: "Contraseña incorrecta" });
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -44,6 +57,7 @@ const Login = () => {
           errors,
           touched,
           handleBlur,
+          isSubmitting,
         }) => (
           <form onSubmit={handleSubmit}>
             <input
@@ -65,7 +79,9 @@ const Login = () => {
             />
             {errors.password && touched.password && errors.password}
             <div className="d-grid gap-2">
-              <input type="submit" className="btnSubmit" value="Login" />
+              <button type="submit" disabled={isSubmitting}>
+                Login
+              </button>
             </div>
           </form>
         )}
