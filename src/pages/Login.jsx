@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { loginAuth } from "../config/firebase";
 import { useForm } from "../hooks/useForm";
 
 const loginForm = {
@@ -26,49 +27,46 @@ const Login = () => {
     loginPasswordValid,
   } = useForm(loginForm, formValidations);
 
-  const onLoginSubmit = (event) => {
+  const onLoginSubmit = async (event) => {
     event.preventDefault();
     setFormSubmitted(true);
     if (!isFormValid) return;
-    console.log({ email: loginEmail, password: loginPassword });
+    try {
+      const credentials = await loginAuth(loginEmail, loginPassword);
+      console.log(credentials);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <>
-      <div className="row"></div>
-      <div className="col-md-6 login-form-1">
-        <h3>Ingreso</h3>
-        <form onSubmit={onLoginSubmit}>
-          <div className="form-group mb-2">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Correo"
-              autoComplete="off"
-              name="loginEmail"
-              value={loginEmail}
-              onChange={onLoginInputChange}
-            />
+      <h3>Ingreso</h3>
+      <form onSubmit={onLoginSubmit}>
+        <input
+          type="text"
+          placeholder="Ingrese Email"
+          autoComplete="off"
+          name="loginEmail"
+          value={loginEmail}
+          onChange={onLoginInputChange}
+        />
+        {!!loginEmailValid && formSubmitted && loginEmailValid}
 
-            {!!loginEmailValid && formSubmitted && loginEmailValid}
-          </div>
-          <div className="form-group mb-2">
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Contraseña"
-              autoComplete="off"
-              name="loginPassword"
-              value={loginPassword}
-              onChange={onLoginInputChange}
-            />
-          </div>
-          {!!loginPasswordValid && formSubmitted && loginPasswordValid}
-          <div className="d-grid gap-2">
-            <input type="submit" className="btnSubmit" value="Login" />
-          </div>
-        </form>
-      </div>
+        <input
+          type="password"
+          placeholder="Contraseña"
+          autoComplete="off"
+          name="loginPassword"
+          value={loginPassword}
+          onChange={onLoginInputChange}
+        />
+
+        {!!loginPasswordValid && formSubmitted && loginPasswordValid}
+        <div className="d-grid gap-2">
+          <input type="submit" className="btnSubmit" value="Login" />
+        </div>
+      </form>
     </>
   );
 };

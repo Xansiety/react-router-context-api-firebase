@@ -1,9 +1,74 @@
-import React from 'react'
+import { useState } from "react";
+import { registerAuth } from "../config/firebase";
+import { useForm } from "../hooks/useForm";
+
+const loginForm = {
+  loginEmail: "",
+  loginPassword: "",
+};
+
+const formValidations = {
+  loginEmail: [(value) => value.includes("@"), "El correo debe de tener una @"],
+  loginPassword: [
+    (value) => value.length >= 6,
+    "El password debe de tener más de 6 letras",
+  ],
+};
 
 const Register = () => {
-  return (
-    <div>Register</div>
-  )
-}
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
-export default Register
+  const {
+    loginEmail,
+    loginPassword,
+    onInputChange: onLoginInputChange,
+    isFormValid,
+    loginEmailValid,
+    loginPasswordValid,
+  } = useForm(loginForm, formValidations);
+
+  const onLoginSubmit = async (event) => {
+    event.preventDefault();
+    setFormSubmitted(true);
+    if (!isFormValid) return;
+    try {
+      const credentials = await registerAuth(loginEmail, loginPassword);
+      console.log(credentials);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <>
+      <h3>Registrarme</h3>
+      <form onSubmit={onLoginSubmit}>
+        <input
+          type="text"
+          placeholder="Ingrese Email"
+          autoComplete="off"
+          name="loginEmail"
+          value={loginEmail}
+          onChange={onLoginInputChange}
+        />
+        {!!loginEmailValid && formSubmitted && loginEmailValid}
+
+        <input
+          type="password"
+          placeholder="Contraseña"
+          autoComplete="off"
+          name="loginPassword"
+          value={loginPassword}
+          onChange={onLoginInputChange}
+        />
+
+        {!!loginPasswordValid && formSubmitted && loginPasswordValid}
+        <div className="d-grid gap-2">
+          <input type="submit" className="btnSubmit" value="Registrarme" />
+        </div>
+      </form>
+    </>
+  );
+};
+
+export default Register;
