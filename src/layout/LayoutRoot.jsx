@@ -1,14 +1,11 @@
-import { Outlet } from "react-router";
-import Navbar from "../components/Navbar";
+import { Outlet } from "react-router"; 
 
 const LayoutRoot = () => {
   return (
     <>
-      <Navbar />
       <div className="container">
         <Outlet />
       </div>
-      <footer>Footer App</footer>
     </>
   );
 };
